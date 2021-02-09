@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a522ca0a90fec094aa8161dee94cb44e, type: 3}
+  m_Name: QuickDash
+  m_EditorClassIdentifier: 
+  abilityOnCooldown: 0
+  cooldown: 0
+  castTime: 0
+  duration: 0
+  healthAugment: 0
+  healAugment: 0
+  shieldAugment: 0
+  damageAugment: 0
+  speedAugment: 0
+  movementAugment: 1
+  healthChange: 0
+  healChange: 0
+  shieldChange: 0
+  damageChange: 0
+  speedChange: 0
+  movementChange: 100
