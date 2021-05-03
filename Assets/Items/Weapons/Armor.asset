@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc5f77934185e544b21d728662b63c4, type: 3}
+  m_Name: Armor
+  m_EditorClassIdentifier: 
+  ItemIcon: {fileID: 21300000, guid: 490d625685ae2494fa64774429efba06, type: 3}
+  itemType: 3
+  Description: 
+  ItemCount: 0
+  MaxItemCount: 0
+  UseableClasses: 
+  Rarity: 4
+  SizeX: 1
+  SizeY: 1
+  LevelRequirement: 4
+  StrengthBonus: 0
+  DexterityBonus: 128
+  IntelligenceBonus: 0
+  ConstitutionBonus: 60
+  overRideNumRNGRolls: 0
+  NumRNGRolls: 3
+  overRideRarityModifier: 0
+  rarityModifier: 3.5

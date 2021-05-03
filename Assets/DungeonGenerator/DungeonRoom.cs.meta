@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 68d576cb4c041684b9849299f9d0104d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - dungeonRoomCellPrefab: {fileID: 2267646641901314071, guid: 3b3e9a169c5075f40a9a93f8b8cc445b, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

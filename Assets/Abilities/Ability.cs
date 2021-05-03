@@ -6,11 +6,17 @@ using UnityEngine;
 public class Ability : ScriptableObject
 {
     public bool abilityOnCooldown = false;
+    public float coolDownNumber = 0.0f;
+
+    [Header("Ability UI")]
+    public Sprite abilityIcon;
+    public AudioClip abilitySoundEffect;
 
     [Header("Ability Effectors")]
     public float cooldown;
     public float castTime;
     public float duration;
+
 
     [Header("Ability Augments")]
     public bool healthAugment;
@@ -28,14 +34,21 @@ public class Ability : ScriptableObject
     public float speedChange;
     public float movementChange;
 
-    public IEnumerator useAbility(Character abilityCharacter)
+    private void OnDisable()
+    {
+        abilityOnCooldown = false;
+    }
+
+    public virtual IEnumerator useAbility(Character abilityCharacter)
     {
         Debug.Log("Checking if Ability on cooldown...");
         if (!abilityOnCooldown)
         {
             Debug.Log("Ability off cooldown...");
+            Debug.Log("Wait for Cast Time...");
+            abilityOnCooldown = true;
             yield return new WaitForSeconds(castTime);
-
+            Debug.Log("Cast Time Complete...");
             if (healthAugment)
             {
                 abilityCharacter.MaxHeal(healthChange);
@@ -60,24 +73,22 @@ public class Ability : ScriptableObject
             {
                 abilityCharacter.Dash(movementChange);
             }
-            abilityOnCooldown = true;
+            abilityCharacter.audioSource.PlayOneShot(abilitySoundEffect);
             yield return new WaitForSeconds(duration);
             resetStats(abilityCharacter);
         }
     }
 
-    public IEnumerator putOnCooldown(Character abilityCharacter)
+    public virtual IEnumerator putOnCooldown(Character abilityCharacter)
     {
-        if (!abilityOnCooldown)
-        {
-            yield return new WaitForSeconds(cooldown);
-            abilityOnCooldown = false;
-        }
-        yield return new WaitForSeconds(0.0f);
+        Debug.Log("Put On Cooldown Ability...");
+        yield return new WaitForSecondsRealtime(cooldown);
+        abilityOnCooldown = false;
     }
 
-    public void resetStats(Character abilityCharacter)
+    public virtual void resetStats(Character abilityCharacter)
     {
+        Debug.Log("Reseting Stats, Ability...");
         if (healthAugment)
         {
             abilityCharacter.MaxDamage(healthChange);

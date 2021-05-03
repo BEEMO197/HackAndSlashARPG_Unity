@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,17 +16,28 @@ public class PlayerController : MonoBehaviour
 
     public Animator animator;
 
+    public bool atkCrRunning = false;
+    public Coroutine attackCoroutine;
+    public AnimationClip attackClip;
+    public float attackLength;
+
     public bool attacking = false;
 
     public float attackSpeed = 1.0f;
 
     public float clickTimer = 0.25f;
     public float timer = 0.0f;
-    public bool isClicking = false; 
+    public bool isClicking = false;
+
+    public bool isPaused = false;
+
+    public GameObject InventoryGameObject;
+    public GameObject PauseMenuGameObject;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        attackLength = attackClip.length;
     }
 
     // Update is called once per frame
@@ -34,18 +47,41 @@ public class PlayerController : MonoBehaviour
         onMouseClick();
         move();
         useAbilities();
+        openCloseInventory();
+
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            pauseGame();
+        }
     }
+
+    public void pauseGame()
+    {
+        switch (isPaused)
+        {
+            case true:
+                Time.timeScale = 1.0f;
+                isPaused = false;
+                break;
+
+            case false:
+                Time.timeScale = 0.0f;
+                isPaused = true;
+                break;
+        }
+
+        PauseMenuGameObject.SetActive(isPaused);
+    }
+
 
     private void onMouseHover()
     {
-       
         Ray clickRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        
         RaycastHit clickRayHit;
 
+        Debug.DrawRay(clickRay.origin, clickRay.direction, Color.red, 1.0f);
         if (Physics.Raycast(clickRay, out clickRayHit))
         {
-
             if (clickRayHit.collider.CompareTag("Enemy"))
             {
                 if (selectedObject == null || clickRayHit.collider.gameObject != selectedObject)
@@ -62,6 +98,9 @@ public class PlayerController : MonoBehaviour
                     hoveredObject = null;
                 }
             }
+
+            player.SetMouseDirectionFromPlayer(clickRayHit.point);
+
         }
     }
 
@@ -69,6 +108,9 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+
             isClicking = true;
             timer += Time.deltaTime;
             if (timer >= clickTimer)
@@ -81,14 +123,13 @@ public class PlayerController : MonoBehaviour
                 {
                     if (clickRayHit.collider.CompareTag("Enemy"))
                     {
-
                         if (selectedObject != null && hoveredObject == null)
                         {
                             if (selectedObject.GetComponentInParent<EnemyController>().attackable)
                             {
                                 if (!attacking)
                                 {
-                                    StartCoroutine(attack(attackSpeed, selectedObject));
+                                    attackCoroutine = StartCoroutine(attack(attackSpeed, selectedObject));
                                 }
                             }
                             else
@@ -96,6 +137,7 @@ public class PlayerController : MonoBehaviour
                                 clickedPosition = clickRayHit.point;
                                 player.walktoTriggerObject.transform.position = new Vector3(clickedPosition.x, player.characterObject.transform.position.y, clickedPosition.z);
                                 player.moveable = true;
+
                                 lookAt(clickedPosition);
                             }
                         }
@@ -113,6 +155,13 @@ public class PlayerController : MonoBehaviour
                     }
                     else
                     {
+                        if (attacking)
+                        {
+                            StopCoroutine(attackCoroutine);
+                            attacking = false;
+                            animator.SetBool("IsAttacking", attacking);
+                        }
+
                         clickedPosition = clickRayHit.point;
                         lookAt(clickedPosition);
                         player.walktoTriggerObject.transform.position = new Vector3(clickedPosition.x, player.characterObject.transform.position.y, clickedPosition.z);
@@ -140,6 +189,14 @@ public class PlayerController : MonoBehaviour
             timer = clickTimer;
     }
 
+    private void openCloseInventory()
+    {
+        if(Input.GetKeyDown(KeyCode.I))
+        {
+            InventoryGameObject.SetActive(!InventoryGameObject.activeSelf);
+        }
+    }
+
     private void lookAt(Vector3 positionToLookAt)
     {
         player.characterObject.transform.rotation = Quaternion.LookRotation(new Vector3(positionToLookAt.x, player.characterObject.transform.position.y, positionToLookAt.z) - player.characterObject.transform.position, player.characterObject.transform.up);
@@ -157,27 +214,65 @@ public class PlayerController : MonoBehaviour
 
         if (player.moveable)
         {
-            Vector3 moveto = player.walktoTriggerObject.transform.position;
-            //player.characterAgent.Move(clickedPosition);
-            velocity = (new Vector3(moveto.x, player.characterObject.transform.position.y, moveto.z) - player.characterObject.transform.position).normalized;
+            Vector3 moveTo = player.walktoTriggerObject.transform.position;
+            velocity = (new Vector3(moveTo.x, player.characterObject.transform.position.y, moveTo.z) - (player.characterObject.transform.position)).normalized;
         }
 
         else
         {
-            velocity = new Vector3(0.0f, 0.0f, 0.0f);
+            player.characterAgent.SetDestination(transform.position);
         }
 
-        if(!player.dashing)
-            player.rigidBody.velocity = velocity * player.speed;
+        if (!player.dashing)
+        {
+            //AI Movement 
+            player.characterAgent.SetDestination(clickedPosition);
+
+            //Basic Click Movement 
+            //player.rigidBody.velocity = velocity * player.speed;
+        }
+
+        animator.SetBool("IsMoving", player.moveable);
+        animator.SetFloat("MoveSpeed", player.speed / 15f);
+        if(animator.GetFloat("MoveSpeed") > 5.0f)
+        {
+            animator.SetFloat("MoveSpeed", 5.0f);
+        }
     }
+
     private IEnumerator attack(float attackSpeed, GameObject attackedObject)
     {
         attacking = true;
         animator.SetBool("IsAttacking", attacking);
+        animator.SetFloat("AttackSpeed", attackSpeed);
 
-        attackedObject.GetComponentInParent<EnemyController>().enemy.Damage(player.attackDamage);
+        while (attacking)
+        {
 
-        yield return new WaitForSeconds(attackSpeed);
+            if (attackedObject == null)
+            {
+                StopCoroutine(attackCoroutine);
+                attacking = false;
+                animator.SetBool("IsAttacking", attacking);
+            }
+
+            yield return new WaitForSeconds(attackLength / attackSpeed / 2);
+
+            if (attackedObject == null)
+            {
+                StopCoroutine(attackCoroutine);
+                attacking = false;
+                animator.SetBool("IsAttacking", attacking);
+            }
+            else
+            {
+                attackedObject.GetComponentInParent<EnemyController>().enemy.Damage(player.attackDamage, player);
+            }
+
+            yield return new WaitForSeconds(attackLength / attackSpeed / 2);
+
+        }
+
         attacking = false;
 
         animator.SetBool("IsAttacking", attacking);

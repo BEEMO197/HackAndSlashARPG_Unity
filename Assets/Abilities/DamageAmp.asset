@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: DamageAmp
   m_EditorClassIdentifier: 
   abilityOnCooldown: 0
+  coolDownNumber: 0
+  abilityIcon: {fileID: 0}
+  abilitySoundEffect: {fileID: 8300000, guid: b00fc8d0bfc7019478b72c0d9e79d8f5, type: 3}
   cooldown: 5
   castTime: 0
   duration: 1

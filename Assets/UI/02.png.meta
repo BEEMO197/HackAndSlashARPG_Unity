@@ -187,13 +187,13 @@ TextureImporter:
       name: 02_1
       rect:
         serializedVersion: 2
-        x: 410
-        y: 312
-        width: 32
-        height: 13
+        x: 411
+        y: 313
+        width: 30
+        height: 11
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 3, y: 3, z: 4, w: 3}
       outline: []
       physicsShape: []
       tessellationDetail: 0

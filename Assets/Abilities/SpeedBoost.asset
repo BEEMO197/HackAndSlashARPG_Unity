@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: SpeedBoost
   m_EditorClassIdentifier: 
   abilityOnCooldown: 0
+  coolDownNumber: 0
+  abilityIcon: {fileID: 0}
+  abilitySoundEffect: {fileID: 8300000, guid: 385de4cef3d811d4abeea4b00ac498c7, type: 3}
   cooldown: 10
   castTime: 0
   duration: 5
